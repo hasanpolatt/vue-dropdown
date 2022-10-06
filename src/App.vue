@@ -1,30 +1,27 @@
 <template>
   <section class="selected-box">
-    <div @click="isVisible= !isVisible" class="select-item">
+    <div @click="isVisible= !isVisible" class="select-item" >
       <span v-if="selectedItem">{{ selectedItem.name }}</span>
-      <span v-else>Select One</span>
+      <input class="search" v-model="search" v-else placeholder="Select One">
       <svg
         :class="isVisible ? 'dropdown-icon-2' : ''"
         class="dropdown-icon"
         xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
         width="24"
-        height="24"
+        height="17"
       >
         <path fill="none" d="M0 0h24v24H0z"/>
-        <path d="M12 10.828l-4.95 4.95-1.414-1.414L12 8l6.364 6.364-1.414 1.414z"/></svg>
-    </div>
-    <div v-if="isVisible" class="dropdown">
-      <input v-model="search" type="text" placeholder="Search">
-      <span v-if="filter.length === 0">No results found</span>
-      <div class="options">
-        <ul>
-          <li @click="selectItem(user)" v-for="(user, index) in filter" :key="`user-${index}`">{{ user.name }}</li>
-          
-        </ul>
+        <path d="M12 10.828l-4.95 4.95-1.414-1.414L12 8l6.364 6.364-1.414 1.414z"/>
+      </svg>
+      <span class="message" v-if="isVisible && filter.length === 0">No results found</span>
+      <div v-if="isVisible">
+        <div class="options">
+          <ul>
+            <li @click="selectItem(user)" v-for="(user, index) in filter" :key="`user-${index}`">{{ user.name }}</li>
+          </ul>
+        </div>
       </div>
     </div>
-
   </section>
 </template>
 
@@ -65,40 +62,31 @@ export default {
       this.isVisible = false;
     }
   }
-  
 };
 </script>
 
 <style>
   .selected-box {
-    max-width: 300px;
-    position: relative;
+    max-width: 350px;
     margin: auto;
   }
-  
+
   .select-item {
-    height: 35px;
     border: 2px solid lightgray;
     border-radius: 5px;
-    padding: 5px 10px;
-    display: flex;
-    align-items: center;
-    font-size: 20px;
-    justify-content: space-between;
   }
 
-  .dropdown {
-    max-width: 300px;
-    border: 2px solid lightgray;
-    border-radius: 5px;
-    position: absolute;
-    left: 0;
-    right: 0;
-    padding: 10px;
+  .search {
+    max-width: 250px;
+    border: 10px solid transparent;
+  }
+
+  textarea:focus, input:focus{
+    outline: none;
   }
 
   .dropdown-icon {
-    transform: rotate(deg);
+    transform: rotate(0deg);
     transition: all 0.3s;
   }
 
@@ -116,6 +104,7 @@ export default {
   }
 
   .options {
+    margin-top: 10px;
     width: 100%;
   }
 
@@ -135,5 +124,15 @@ export default {
     background-color: #f3f3f3;
     cursor: pointer;
     font-size: 16px;
+  }
+
+  li:hover {
+    background: #a5a4a4;
+    color: #fff;
+    font-weight: bolder;
+  }
+
+  .message {
+    margin-left: 35px;
   }
 </style>
