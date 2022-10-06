@@ -2,7 +2,7 @@
   <section class="selected-box">
     <div @click="isVisible= !isVisible" class="select-item" >
       <span v-if="selectedItem">{{ selectedItem.name }}</span>
-      <input class="search" v-model="search" v-else placeholder="Select One">
+      <input class="search" v-model="search" placeholder="Select One">
       <svg
         :class="isVisible ? 'dropdown-icon-2' : ''"
         class="dropdown-icon"
@@ -37,22 +37,18 @@ export default {
   },
   computed: {
     filter() {
-      const query = this.search.toLowerCase();
-
-      if (this.search === "") {
-        return this.userArray;
-      }
-      return this.userArray.filter((user) => {
-        return Object.values(user).some((word) => 
-          String(word).toLowerCase().includes(query));
-      });
-    }
+      if (this.search === "") return this.userArray;
+      return this.userArray.filter((user) =>
+        Object.values(user).some((word) =>
+          String(word).toLowerCase().includes(this.search.toLowerCase())
+        )
+      );
+    },
   },
-  mounted() {
+  created() {
     fetch("https://jsonplaceholder.typicode.com/users")
     .then((res) => res.json())
     .then((json) => {
-      console.log(json);
       this.userArray = json;
     });
   },
