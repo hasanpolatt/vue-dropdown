@@ -1,8 +1,10 @@
 <template>
   <section class="selected-box">
     <div @click="isVisible= !isVisible" class="select-item">
-      <span>Select One</span>
+      <span v-if="selectedItem">{{ selectedItem.name }}</span>
+      <span v-else>Select One</span>
       <svg
+        :class="isVisible ? 'dropdown-icon-2' : ''"
         class="dropdown-icon"
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 24 24"
@@ -10,19 +12,15 @@
         height="24"
       >
         <path fill="none" d="M0 0h24v24H0z"/>
-        <path d="M13 7.828V20h-2V7.828l-5.364 5.364-1.414-1.414L12 4l7.778 7.778-1.414 1.414L13 7.828z"/>
-      </svg>
+        <path d="M12 10.828l-4.95 4.95-1.414-1.414L12 8l6.364 6.364-1.414 1.414z"/></svg>
     </div>
     <div v-if="isVisible" class="dropdown">
       <input v-model="search" type="text" placeholder="Search">
+      <span v-if="filter.length === 0">No results found</span>
       <div class="options">
         <ul>
-          <li>İstanbul</li>
-          <li>Ankara</li>
-          <li>İzmir</li>
-          <li>Bursa</li>
-          <li>Diyarbakır</li>
-          <li>Eskişehir</li>
+          <li @click="selectItem(user)" v-for="(user, index) in filter" :key="`user-${index}`">{{ user.name }}</li>
+          
         </ul>
       </div>
     </div>
@@ -37,8 +35,37 @@ export default {
       search: '',
       selectedItem: null,
       isVisible: false,
+      userArray: [],
     }
   },
+  computed: {
+    filter() {
+      const query = this.search.toLowerCase();
+
+      if (this.search === "") {
+        return this.userArray;
+      }
+      return this.userArray.filter((user) => {
+        return Object.values(user).some((word) => 
+          String(word).toLowerCase().includes(query));
+      });
+    }
+  },
+  mounted() {
+    fetch("https://jsonplaceholder.typicode.com/users")
+    .then((res) => res.json())
+    .then((json) => {
+      console.log(json);
+      this.userArray = json;
+    });
+  },
+  methods: {
+    selectItem(user) {
+      this.selectedItem = user;
+      this.isVisible = false;
+    }
+  }
+  
 };
 </script>
 
@@ -68,6 +95,16 @@ export default {
     left: 0;
     right: 0;
     padding: 10px;
+  }
+
+  .dropdown-icon {
+    transform: rotate(deg);
+    transition: all 0.3s;
+  }
+
+  .dropdown-icon-2 {
+    transform: rotate(180deg);
+    transition: all 0.3s;
   }
 
   input {
