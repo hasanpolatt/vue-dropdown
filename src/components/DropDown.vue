@@ -1,27 +1,30 @@
 <template>
   <section class="selected-box">
-    <div @click="isVisible= !isVisible" class="select-item" >
+    <div @click="isVisible= !isVisible" class="select-item">
       <span v-if="selectedItem">{{ selectedItem.name }}</span>
-      <input class="search" v-model="search" placeholder="Select One">
+      <span v-else>Select One</span>
       <svg
         :class="isVisible ? 'dropdown-icon-2' : ''"
         class="dropdown-icon"
         xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
         width="24"
-        height="17"
+        height="24"
       >
         <path fill="none" d="M0 0h24v24H0z"/>
-        <path d="M12 10.828l-4.95 4.95-1.414-1.414L12 8l6.364 6.364-1.414 1.414z"/>
-      </svg>
-      <span class="message" v-if="isVisible && filter.length === 0">No results found</span>
-      <div v-if="isVisible">
-        <div class="options">
-          <ul>
-            <li @click="selectItem(user)" v-for="(user, index) in filter" :key="`user-${index}`">{{ user.name }}</li>
-          </ul>
-        </div>
+        <path d="M12 10.828l-4.95 4.95-1.414-1.414L12 8l6.364 6.364-1.414 1.414z"/></svg>
+    </div>
+    <div v-if="isVisible" class="dropdown">
+      <input v-model="search" type="text" placeholder="Search">
+      <span v-if="filter.length === 0">No results found</span>
+      <div class="options">
+        <ul>
+          <li @click="selectItem(user)" v-for="(user, index) in filter" :key="`user-${index}`">{{ user.name }}</li>
+          
+        </ul>
       </div>
     </div>
+
   </section>
 </template>
 
@@ -37,18 +40,21 @@ export default {
   },
   computed: {
     filter() {
-      if (this.search === "") return this.userArray;
-      return this.userArray.filter((user) =>
-        Object.values(user).some((word) =>
-          String(word).toLowerCase().includes(this.search.toLowerCase())
-        )
-      );
-    },
+      const query = this.search.toLowerCase();
+      if (this.search === "") {
+        return this.userArray;
+      }
+      return this.userArray.filter((user) => {
+        return Object.values(user).some((word) => 
+          String(word).toLowerCase().includes(query));
+      });
+    }
   },
-  created() {
+  mounted() {
     fetch("https://jsonplaceholder.typicode.com/users")
     .then((res) => res.json())
     .then((json) => {
+      console.log(json);
       this.userArray = json;
     });
   },
@@ -58,39 +64,44 @@ export default {
       this.isVisible = false;
     }
   }
+  
 };
 </script>
 
 <style>
   .selected-box {
-    max-width: 350px;
+    max-width: 300px;
+    position: relative;
     margin: auto;
   }
-
+  
   .select-item {
+    height: 35px;
     border: 2px solid lightgray;
     border-radius: 5px;
+    padding: 5px 10px;
+    display: flex;
+    align-items: center;
+    font-size: 20px;
+    justify-content: space-between;
   }
-
-  .search {
-    max-width: 250px;
-    border: 10px solid transparent;
+  .dropdown {
+    max-width: 300px;
+    border: 2px solid lightgray;
+    border-radius: 5px;
+    position: absolute;
+    left: 0;
+    right: 0;
+    padding: 10px;
   }
-
-  textarea:focus, input:focus{
-    outline: none;
-  }
-
   .dropdown-icon {
-    transform: rotate(0deg);
+    transform: rotate(deg);
     transition: all 0.3s;
   }
-
   .dropdown-icon-2 {
     transform: rotate(180deg);
     transition: all 0.3s;
   }
-
   input {
     width: 90%;
     border: 2px solid lightgray;
@@ -98,12 +109,9 @@ export default {
     font-size: 16px;
     padding-left: 25px;
   }
-
   .options {
-    margin-top: 10px;
     width: 100%;
   }
-
   ul {
     list-style: none;
     text-align: left;
@@ -112,7 +120,6 @@ export default {
     overflow-y: scroll;
     overflow-x: hidden;
   }
-
   li {
     width: 100%;
     border-bottom: 1px solid lightgrey;
@@ -120,15 +127,5 @@ export default {
     background-color: #f3f3f3;
     cursor: pointer;
     font-size: 16px;
-  }
-
-  li:hover {
-    background: #a5a4a4;
-    color: #fff;
-    font-weight: bolder;
-  }
-
-  .message {
-    margin-left: 35px;
   }
 </style>
