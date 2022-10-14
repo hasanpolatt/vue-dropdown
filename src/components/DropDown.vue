@@ -16,56 +16,60 @@
     </div>
     <div v-if="isVisible" class="dropdown">
       <input v-model="search" type="text" placeholder="Search">
-      <span v-if="filter.length === 0">No results found</span>
+      <span class="falan" v-if="filter.length === 0">No results found</span>
       <div class="options">
         <ul>
-          <li @click="selectItem(user)" v-for="(user, index) in filter" :key="`user-${index}`">{{ user.name }}</li>
-          
+          <li v-for="(user, index) in filter" :key="index" @click="selectItem(user)">{{ user.name }}</li>  
         </ul>
       </div>
     </div>
-
   </section>
 </template>
 
 <script>
+import { computed, reactive } from '@vue/reactivity';
+import { onMounted, ref } from 'vue';
+
 export default {
-  data() {
-    return {
-      search: '',
-      selectedItem: null,
-      isVisible: false,
-      userArray: [],
-    }
-  },
-  computed: {
-    filter() {
-      const query = this.search.toLowerCase();
-      if (this.search === "") {
-        return this.userArray;
+  setup() {
+    let search = ref(null);
+    let userArray = reactive([]);
+    const filter = computed(() => {
+      if (search.value === "" || search.value === null) {
+        return userArray;
       }
-      return this.userArray.filter((user) => {
+      return userArray.filter((user) => {
         return Object.values(user).some((word) => 
-          String(word).toLowerCase().includes(query));
+          String(word).toLowerCase().includes(search.value.toLowerCase()));
+      })
+    })
+
+    onMounted(() => {
+      fetch("https://jsonplaceholder.typicode.com/users")
+      .then((res) => res.json())
+      .then((json) => {
+        console.log(json);
+        userArray = json;
       });
-    }
-  },
-  mounted() {
-    fetch("https://jsonplaceholder.typicode.com/users")
-    .then((res) => res.json())
-    .then((json) => {
-      console.log(json);
-      this.userArray = json;
-    });
-  },
-  methods: {
-    selectItem(user) {
+    })
+
+    const selectedItem = ref(null);
+    const isVisible = ref(false);
+    function selectItem(user) {
       this.selectedItem = user;
       this.isVisible = false;
     }
+    
+    return {
+      search,
+      selectedItem,
+      isVisible,
+      userArray,
+      selectItem,
+      filter,
+    };
   }
-  
-};
+}
 </script>
 
 <style>
@@ -74,9 +78,9 @@ export default {
     position: relative;
     margin: auto;
   }
-  
+
   .select-item {
-    height: 35px;
+    height: 40px;
     border: 2px solid lightgray;
     border-radius: 5px;
     padding: 5px 10px;
