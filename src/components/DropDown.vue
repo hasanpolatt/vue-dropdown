@@ -32,10 +32,10 @@ import { onMounted, ref } from 'vue';
 
 export default {
   setup() {
-    let search = ref(null);
+    let search = ref("");
     let userArray = reactive([]);
     const filter = computed(() => {
-      if (search.value === "" || search.value === null) {
+      if (search.value === "") {
         return userArray;
       }
       return userArray.filter((user) => {
@@ -48,7 +48,6 @@ export default {
       fetch("https://jsonplaceholder.typicode.com/users")
       .then((res) => res.json())
       .then((json) => {
-        console.log(json);
         userArray = json;
       });
     })
